@@ -1,4 +1,4 @@
-# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# This program is delived from YOLOv5 examples.(https://github.com/ultralytics/yolov5)
 """
 Dataloaders
 """

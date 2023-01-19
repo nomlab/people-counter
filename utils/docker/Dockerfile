@@ -1,4 +1,4 @@
-# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# This program is delived from YOLOv5 examples.(https://github.com/ultralytics/yolov5)
 # Builds ultralytics/yolov5:latest image on DockerHub https://hub.docker.com/r/ultralytics/yolov5
 # Image is CUDA-optimized for YOLOv5 single/multi-GPU training and inference
 
