@@ -63,17 +63,18 @@ def on_disconnect(client, userdata, rc):
 def on_publish(client, userdata, mid):
     print("publish: {0}".format(mid))
 
-def mqtt_send(send_string, topic_name, mqtt_server, mqtt_server_port):
-    client = mqtt.Client()                 # クラスのインスタンス(実体)の作成
-    client.on_connect = on_connect         # 接続時のコールバック関数を登録
-    client.on_disconnect = on_disconnect   # 切断時のコールバックを登録
-    client.on_publish = on_publish         # メッセージ送信時のコールバック
+class MqttClient:
+    def __init__(self, server, port, topic):
+        self.topic = topic
+        self.client = mqtt.Client()                 # クラスのインスタンス(実体)の作成
+        self.client.on_connect = on_connect         # 接続時のコールバック関数を登録
+        self.client.on_disconnect = on_disconnect   # 切断時のコールバックを登録
+        self.client.on_publish = on_publish         # メッセージ送信時のコールバック
 
-    client.connect(mqtt_server, mqtt_server_port, 60)  # 接続先は自分自身
+        self.client.connect(server, port, 60)  # 接続先は自分自身
 
-    # 通信処理スタート
-    client.loop_start()    # subはloop_forever()だが，pubはloop_start()で起動だけさせる
-    client.publish(topic_name, send_string)
+    def publish(self, send_string):
+        self.client.publish(self.topic, send_string)
 
 @smart_inference_mode()
 def run(
@@ -139,6 +140,9 @@ def run(
         dataset = LoadImages(source, img_size=imgsz, stride=stride, auto=pt, vid_stride=vid_stride)
     vid_path, vid_writer = [None] * bs, [None] * bs
 
+    # Initialize MQTT client
+    mqtt_client = MqttClient(mqtt_server, mqtt_port, mqtt_topic)
+
     # Run inference
     model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))  # warmup
     seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
@@ -194,8 +198,8 @@ def run(
 
                     s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
 
-                if (math.floor(time.time()) - base_time) % 60 == 59 and topic_name != '' and mqtt_server != '':
-                    mqtt_send(f"{count_list.index(max(count_list))}", topic_name=topic_name, mqtt_server=mqtt_server, mqtt_server_port=mqtt_server_port)
+                if (math.floor(time.time()) - base_time) % mqtt_interval == 0:
+                    mqtt_client.publish(f"{count_list.index(max(count_list))}")
                     count_list = [0] * 100
                     time.sleep(1)
 
