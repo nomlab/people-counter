@@ -105,9 +105,10 @@ def run(
         half=False,  # use FP16 half-precision inference
         dnn=False,  # use OpenCV DNN for ONNX inference
         vid_stride=1,  # video frame-rate stride
-        topic_name='',
+        mqtt_topic='',
         mqtt_server='',
-        mqtt_server_port=1883
+        mqtt_port=1883,
+        mqtt_interval=10
 ):
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
@@ -289,9 +290,10 @@ def parse_opt():
     parser.add_argument('--half', action='store_true', help='use FP16 half-precision inference')
     parser.add_argument('--dnn', action='store_true', help='use OpenCV DNN for ONNX inference')
     parser.add_argument('--vid-stride', type=int, default=1, help='video frame-rate stride')
-    parser.add_argument('--topic-name', type=str, default='', help='topic name at mqtt sending')
+    parser.add_argument('--mqtt-topic', type=str, default='', help='topic name at mqtt sending')
     parser.add_argument('--mqtt-server', type=str, default='', help='mqtt server domain')
-    parser.add_argument('--mqtt-server-port', type=int, default=1883, help='mqtt server port')
+    parser.add_argument('--mqtt-port', type=int, default=1883, help='mqtt server port')
+    parser.add_argument('--mqtt-interval', type=int, default=10, help='interval for mqtt publishing')
     opt = parser.parse_args()
     opt.imgsz *= 2 if len(opt.imgsz) == 1 else 1  # expand
     print_args(vars(opt))
